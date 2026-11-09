@@ -1,0 +1,93 @@
+CREATE TABLE `customers` (
+   `customer_id` int NOT NULL,
+   `customer_name` varchar(100) NOT NULL,
+   `email` varchar(100) DEFAULT NULL,
+   `phone` varchar(15) NOT NULL,
+   `address` varchar(255) DEFAULT NULL,
+   `registration_date` date DEFAULT (curdate()),
+   PRIMARY KEY (`customer_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `order_details` (
+   `order_detail_id` int NOT NULL,
+   `order_id` int DEFAULT NULL,
+   `product_id` int DEFAULT NULL,
+   `quantity` int NOT NULL,
+   `unit_price` decimal(10,2) NOT NULL,
+   PRIMARY KEY (`order_detail_id`),
+   KEY `order_id` (`order_id`),
+   KEY `product_id` (`product_id`),
+   CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
+   CONSTRAINT `order_details_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `orders` (
+   `order_id` int NOT NULL,
+   `customer_id` int DEFAULT NULL,
+   `order_date` date DEFAULT (curdate()),
+   `total_amount` decimal(10,2) DEFAULT NULL,
+   `status` varchar(20) NOT NULL,
+   PRIMARY KEY (`order_id`),
+   KEY `fk_orders_customers` (`customer_id`),
+   CONSTRAINT `fk_orders_customers` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
+   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `product_categories` (
+   `category_id` int NOT NULL,
+   `category_name` varchar(100) NOT NULL,
+   `description` varchar(255) DEFAULT NULL,
+   PRIMARY KEY (`category_id`),
+   UNIQUE KEY `category_name` (`category_name`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `products` (
+   `product_id` int NOT NULL,
+   `product_name` varchar(100) NOT NULL,
+   `category_id` int DEFAULT NULL,
+   `supplier_id` int DEFAULT NULL,
+   `unit_price` decimal(10,2) NOT NULL,
+   `stock_quantity` int NOT NULL,
+   `reorder_level` int NOT NULL,
+   `created_date` date DEFAULT (curdate()),
+   `weight_kg` decimal(5,2) DEFAULT NULL,
+   PRIMARY KEY (`product_id`),
+   KEY `supplier_id` (`supplier_id`),
+   KEY `idx_category_supplier` (`category_id`,`supplier_id`),
+   CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `product_categories` (`category_id`),
+   CONSTRAINT `products_ibfk_2` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`supplier_id`),
+   CONSTRAINT `chk_unit_price` CHECK ((`unit_price` > 0)),
+   CONSTRAINT `products_chk_1` CHECK ((`unit_price` > 0)),
+   CONSTRAINT `products_chk_2` CHECK ((`stock_quantity` >= 0)),
+   CONSTRAINT `products_chk_3` CHECK ((`reorder_level` >= 0))
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `suppliers` (
+   `supplier_id` int NOT NULL,
+   `supplier_name` varchar(100) NOT NULL,
+   `contact_person` varchar(100) NOT NULL,
+   `email` varchar(100) NOT NULL,
+   `phone` varchar(15) NOT NULL,
+   `address` varchar(255) NOT NULL,
+   `status` varchar(10) DEFAULT 'Active',
+   PRIMARY KEY (`supplier_id`),
+   CONSTRAINT `suppliers_chk_1` CHECK ((`status` in (_utf8mb4'Active',_utf8mb4'Inactive')))
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `job_logs` (
+   `log_id` int NOT NULL AUTO_INCREMENT,
+   `job_name` varchar(100) DEFAULT NULL,
+   `executed_at` datetime DEFAULT NULL,
+   PRIMARY KEY (`log_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=463 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `inventory_alerts` (
+   `alert_id` int NOT NULL AUTO_INCREMENT,
+   `product_id` int NOT NULL,
+   `stock_quantity` int NOT NULL,
+   `reorder_level` int NOT NULL,
+   `alert_date` datetime DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`alert_id`),
+   UNIQUE KEY `unique_product_alert` (`product_id`),
+   CONSTRAINT `inventory_alerts_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

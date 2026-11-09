@@ -1,0 +1,30 @@
+
+[
+  {
+    "product_id": 201,
+    "product_name": "Gaming Mouse",
+    "category_id": 3,
+    "supplier_id": 3,
+    "unit_price": 1500.00,
+    "stock_quantity": 30,
+    "reorder_level": 5
+  },
+  {
+    "product_id": 202,
+    "product_name": "Wireless Keyboard",
+    "category_id": 3,
+    "supplier_id": 2,
+    "unit_price": 2200.00,
+    "stock_quantity": 20,
+    "reorder_level": 5
+  },
+  {
+    "product_id": 203,
+    "product_name": "Gaming Monitor",
+    "category_id": 1,
+    "supplier_id": 4,
+    "unit_price": 18500.00,
+    "stock_quantity": 8,
+    "reorder_level": 3
+  }
+]

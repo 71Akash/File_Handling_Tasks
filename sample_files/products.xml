@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+    <product>
+        <product_id>101</product_id>
+        <product_name>Gaming Mouse</product_name>
+        <category_id>3</category_id>
+        <supplier_id>3</supplier_id>
+        <unit_price>1200.00</unit_price>
+        <stock_quantity>25</stock_quantity>
+        <reorder_level>5</reorder_level>
+    </product>
+
+    <product>
+        <product_id>102</product_id>
+        <product_name>Mechanical Keyboard</product_name>
+        <category_id>3</category_id>
+        <supplier_id>3</supplier_id>
+        <unit_price>3500.00</unit_price>
+        <stock_quantity>15</stock_quantity>
+        <reorder_level>5</reorder_level>
+    </product>
+
+    <product>
+        <product_id>103</product_id>
+        <product_name>Gaming Monitor</product_name>
+        <category_id>1</category_id>
+        <supplier_id>4</supplier_id>
+        <unit_price>18500.00</unit_price>
+        <stock_quantity>8</stock_quantity>
+        <reorder_level>3</reorder_level>
+    </product>
+</products>

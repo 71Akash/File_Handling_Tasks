@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Report</title>
+</head>
+<body style="margin:0; padding:20px; background:#f4f6f9;
+             font-family:Arial,sans-serif;">
+
+<div style="max-width:600px; margin:auto; background:#ffffff;
+            border-radius:10px; overflow:hidden;">
+
+    <div style="background:#17365d; color:white;
+                padding:25px; text-align:center;">
+
+        <h1 style="margin:0;">Inventory Report</h1>
+
+        <p style="margin-top:10px;">
+            File Processing System
+        </p>
+    </div>
+
+    <div style="padding:30px;">
+
+        <h2>Hello,</h2>
+
+        <p>
+            Your latest inventory reports have been generated
+            successfully. Please find the PDF and Excel reports
+            attached to this email.
+        </p>
+
+        <h3>Processing Summary</h3>
+
+        <p>
+            <strong>Inserted:</strong>
+            <span th:text="${insertedCount}">0</span>
+        </p>
+
+        <p>
+            <strong>Updated:</strong>
+            <span th:text="${updatedCount}">0</span>
+        </p>
+
+        <p>
+            <strong>Errors:</strong>
+            <span th:text="${errorCount}">0</span>
+        </p>
+
+        <h3>Attachments</h3>
+
+        <ul>
+            <li>product_inventory_report.pdf</li>
+            <li>products_export.xlsx</li>
+        </ul>
+
+        <p>
+            Thank you,<br>
+            <strong>File Processing System</strong>
+        </p>
+
+    </div>
+
+    <div style="background:#f4f6f9; padding:15px;
+                text-align:center; color:#777; font-size:12px;">
+
+        Automated Inventory Report
+
+    </div>
+
+</div>
+
+</body>
+</html>

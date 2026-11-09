@@ -1,0 +1,5 @@
+product_id,product_name,category_id,supplier_id,unit_price,stock_quantity,reorder_level
+301,Wireless Mouse,3,3,1200.00,25,5
+302,Mechanical Keyboard,3,2,3500.00,15,5
+303,LED Monitor,1,4,15000.00,10,3
+304,Inventinator,1,4,15000.00,10,3

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Management</title>
+<style>
+    *{
+        box-sizing:border-box
+    }
+    body
+    {
+        margin:0;
+        padding:32px 20px;
+        font-family:Arial,sans-serif;
+        background:#f4f6f9;
+        color:#263238
+    }
+    .container
+    {
+        max-width:1280px;
+        margin:24px auto
+    }
+    h1
+    {
+        margin:0 0 10px;
+        font-size:30px
+    }
+    .description
+    {
+        color:#64748b;
+        line-height:1.6;
+        margin:0 0 28px
+    }
+    .card-grid
+    {
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+        gap:22px;align-items:stretch
+    }
+    .upload-area
+    {
+        min-width:0;
+        padding:24px;
+        background:#fff;
+        border:1px solid #e2e8f0;
+        border-radius:12px;
+        box-shadow:0 4px 18px rgba(0,0,0,.06);
+        display:flex;
+        flex-direction:column
+    }
+    .upload-area h3
+    {
+        margin:0 0 10px;
+        font-size:19px
+    }
+    .upload-area p
+    {
+        color:#64748b;
+        line-height:1.5;
+        min-height:44px;
+        margin:0 0 16px
+    }
+    input[type=file]
+    {
+        display:block;
+        width:100%;
+        margin:8px 0 18px;
+        font-size:14px
+    }
+    input[type=email],input[type=text]
+    {
+        width:100%;
+        padding:11px 12px;
+        margin:0 0 12px;
+        border:1px solid #cbd5e1;
+        border-radius:7px;
+        font-size:14px
+    }
+    input:focus
+    {
+        outline:2px solid #bfdbfe;
+        border-color:#3b82f6
+    }
+    button{
+        width:100%;
+        margin-top:auto;
+        padding:12px 18px;
+        background:#2563eb;
+        color:#fff;
+        border:0;
+        border-radius:7px;
+        cursor:pointer;
+        font-size:15px
+    }
+    button:hover{
+        background:#1d4ed8
+    }
+    button:disabled{
+        background:#94a3b8;
+        cursor:not-allowed
+    }
+    .status{
+        display:none;
+        margin-top:16px;
+        padding:12px;
+        border-radius:7px;
+        line-height:1.5;
+        white-space:pre-line;
+        overflow-wrap:anywhere;
+        font-size:14px
+    }
+    .success{
+        display:block;
+        background:#dcfce7;
+        color:#166534
+    }
+    .error{
+        display:block;
+        background:#fee2e2;
+        color:#991b1b
+    }
+    .loading{
+        display:block;
+        background:#dbeafe;
+        color:#1e40af
+    }
+    @media(min-width:1180px){.card-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media(min-width:850px) and (max-width:1179px){.card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(min-width:580px) and (max-width:849px){.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:579px){body{padding:18px 12px}.container{margin:8px auto}.card-grid{grid-template-columns:1fr}.upload-area p{min-height:0}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Inventory Management</h1>
+<p class="description">Import product data, export inventory records, generate reports, and email the latest inventory reports.</p>
+
+<div class="card-grid">
+<section class="upload-area">
+<h3>Excel Import</h3><p>Select an Excel workbook (.xlsx) to insert or update product records.</p>
+<input type="file" id="excelFile" accept=".xlsx">
+<button id="uploadButton" onclick="uploadExcel()">Upload Excel</button><div id="excelStatus" class="status"></div>
+</section>
+
+<section class="upload-area">
+<h3>XML Import</h3><p>Select an XML file (.xml) containing product records.</p>
+<input type="file" id="xmlFile" accept=".xml">
+<button id="xmlUploadButton" onclick="uploadXML()">Upload XML</button><div id="xmlStatus" class="status"></div>
+</section>
+
+<section class="upload-area">
+<h3>CSV Import</h3><p>Select a CSV file (.csv) to insert new products or update existing records.</p>
+<input type="file" id="csvFile" accept=".csv,text/csv">
+<button id="csvUploadButton" onclick="uploadCSV()">Upload CSV</button><div id="csvStatus" class="status"></div>
+</section>
+
+<section class="upload-area">
+<h3>Export Products</h3><p>Download all product records from your MySQL database as an Excel workbook.</p>
+<button id="exportButton" onclick="exportProducts()">Export Products</button><div id="exportStatus" class="status"></div>
+</section>
+
+<section class="upload-area">
+<h3>PDF Inventory Report</h3><p>Generate and download a PDF report containing product details and stock status.</p>
+<button id="pdfButton" onclick="generatePdf()">Generate PDF Report</button><div id="pdfStatus" class="status"></div>
+</section>
+
+<section class="upload-area">
+<h3>Email Inventory Report</h3><p>Send the latest PDF and Excel inventory reports to an email address.</p>
+<input type="email" id="recipientEmail" placeholder="Recipient email address" required>
+<input type="text" id="emailSubject" value="Inventory Report" placeholder="Email subject">
+<input type="text" id="emailMessage" value="Please find the latest inventory reports attached." placeholder="Email message">
+<button id="emailButton" onclick="sendInventoryEmail()">Send Email Report</button><div id="emailStatus" class="status"></div>
+</section>
+</div>
+</div>
+
+<script>
+function showStatus(el,type,message){el.className="status "+type;el.textContent=message}
+
+async function uploadExcel(){
+ const input=document.getElementById("excelFile"),button=document.getElementById("uploadButton"),status=document.getElementById("excelStatus"),file=input.files[0];
+ if(!file){showStatus(status,"error","Please select an Excel file first.");return}
+ if(!file.name.toLowerCase().endsWith(".xlsx")){showStatus(status,"error","Only .xlsx files are supported.");return}
+ const data=new FormData();data.append("file",file);button.disabled=true;button.textContent="Uploading...";showStatus(status,"loading","Processing your Excel file. Please wait...");
+ try{
+  const response=await fetch("/api/products/upload",{method:"POST",body:data});
+  if(!response.ok)throw new Error(await response.text()||"Upload failed.");
+  const inserted=response.headers.get("X-Inserted-Count"),updated=response.headers.get("X-Updated-Count"),errors=response.headers.get("X-Error-Count"),blob=await response.blob();
+  const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="import_result.xlsx";document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+  showStatus(status,"success","Import completed successfully!\n\nNew products inserted: "+inserted+"\nExisting products updated: "+updated+"\nRows with errors: "+errors+"\n\nThe processed Excel report has been downloaded.");
+ }catch(e){showStatus(status,"error","Upload failed: "+e.message)}finally{button.disabled=false;button.textContent="Upload Excel"}
+}
+
+async function uploadXML(){
+ const input=document.getElementById("xmlFile"),button=document.getElementById("xmlUploadButton"),status=document.getElementById("xmlStatus"),file=input.files[0];
+ if(!file){showStatus(status,"error","Please select an XML file first.");return}
+ if(!file.name.toLowerCase().endsWith(".xml")){showStatus(status,"error","Only XML files are supported.");return}
+ const data=new FormData();data.append("file",file);button.disabled=true;button.textContent="Uploading...";showStatus(status,"loading","Processing XML file. Please wait...");
+ try{
+  const response=await fetch("/api/products/upload-xml",{method:"POST",body:data}),result=await response.json();
+  if(!response.ok)throw new Error(result.message||result.error||"XML upload failed.");
+  let output="XML import completed!\n\nNew products inserted: "+result.insertedCount+"\nExisting products updated: "+result.updatedCount+"\nRecords with errors: "+result.errorCount;
+  if(result.errors&&result.errors.length)output+="\n\nErrors:\n"+(Array.isArray(result.errors)?result.errors.join("\n"):result.errors);
+  showStatus(status,result.errorCount>0?"error":"success",output);
+ }catch(e){showStatus(status,"error","Upload failed: "+e.message)}finally{button.disabled=false;button.textContent="Upload XML"}
+}
+
+async function uploadCSV(){
+ const input=document.getElementById("csvFile"),button=document.getElementById("csvUploadButton"),status=document.getElementById("csvStatus"),file=input.files[0];
+ if(!file){showStatus(status,"error","Please select a CSV file first.");return}
+ if(!file.name.toLowerCase().endsWith(".csv")){showStatus(status,"error","Only .csv files are supported.");return}
+ const data=new FormData();data.append("file",file);button.disabled=true;button.textContent="Uploading...";showStatus(status,"loading","Uploading and importing CSV records. Please wait...");
+ try{
+  const response=await fetch("/api/products/upload-csv",{method:"POST",body:data});
+  const result=await response.json();
+  if(!response.ok)throw new Error(typeof result==="string"?result:(result.message||result.error||"CSV upload failed."));
+  let output="CSV import completed!\n\nNew products inserted: "+result.insertedCount+"\nExisting products updated: "+result.updatedCount+"\nRecords with errors: "+result.errorCount;
+  if(result.errors)output+="\n\nErrors:\n"+result.errors;
+  showStatus(status,result.errorCount>0?"error":"success",output);
+ }catch(e){showStatus(status,"error","CSV upload failed: "+e.message)}finally{button.disabled=false;button.textContent="Upload CSV"}
+}
+
+async function exportProducts(){
+ const button=document.getElementById("exportButton"),status=document.getElementById("exportStatus");button.disabled=true;button.textContent="Exporting...";showStatus(status,"loading","Fetching product records from database...");
+ try{
+  const response=await fetch("/api/products/export");if(!response.ok)throw new Error("Could not export products.");
+  const total=response.headers.get("X-Total-Products"),blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download="products_export.xlsx";document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+  showStatus(status,"success","Export completed successfully!\nTotal products exported: "+total);
+ }catch(e){showStatus(status,"error",e.message)}finally{button.disabled=false;button.textContent="Export Products"}
+}
+
+async function generatePdf(){
+ const button=document.getElementById("pdfButton"),status=document.getElementById("pdfStatus");button.disabled=true;button.textContent="Generating...";showStatus(status,"loading","Generating inventory PDF report...");
+ try{
+  const response=await fetch("/api/products/report/pdf");if(!response.ok)throw new Error("Could not generate PDF report.");
+  const blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="product_inventory_report.pdf";document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+  showStatus(status,"success","PDF report generated and downloaded successfully!");
+ }catch(e){showStatus(status,"error","PDF generation failed: "+e.message)}finally{button.disabled=false;button.textContent="Generate PDF Report"}
+}
+
+async function sendInventoryEmail(){
+ const recipient=document.getElementById("recipientEmail").value.trim(),subject=document.getElementById("emailSubject").value.trim(),message=document.getElementById("emailMessage").value.trim(),button=document.getElementById("emailButton"),status=document.getElementById("emailStatus");
+ if(!recipient){showStatus(status,"error","Please enter a recipient email address.");return}
+ const params=new URLSearchParams();params.append("recipient",recipient);params.append("subject",subject||"Inventory Report");params.append("message",message||"Please find the latest inventory reports attached.");
+ button.disabled=true;button.textContent="Sending...";showStatus(status,"loading","Generating reports and sending email. Please wait...");
+ try{
+  const response=await fetch("/api/products/email-report",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:params.toString()}),result=await response.text();
+  if(!response.ok)throw new Error(result||"Email could not be sent.");
+  showStatus(status,"success",result);
+ }catch(e){showStatus(status,"error","Email sending failed: "+e.message)}finally{button.disabled=false;button.textContent="Send Email Report"}
+}
+</script>
+</body>
+</html>
